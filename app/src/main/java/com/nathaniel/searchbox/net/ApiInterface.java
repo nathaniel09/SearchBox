@@ -6,6 +6,7 @@ import com.nathaniel.searchbox.net.respond.ProductsResponse;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
+import rx.Observable;
 
 /**
  * Created by USER on 9/13/2016.
@@ -13,5 +14,5 @@ import retrofit2.http.Query;
 public interface ApiInterface {
 
     @GET(NetConstant.SEARCH_PRODUCT)
-    Call<ProductsResponse> searchProducts(@Query("q") String query);
+    Observable<ProductsResponse> searchProducts(@Query("q") String query);
 }

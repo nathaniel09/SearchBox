@@ -7,9 +7,10 @@ import com.nathaniel.searchbox.net.respond.ProductsResponse;
 
 import java.util.List;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import rx.Observable;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 import timber.log.Timber;
 
 /**
@@ -25,20 +26,27 @@ public class ProductPresenter {
 
     public void searchProduct(String query, final Callback<List<Product>> callback) {
         ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
-        Call<ProductsResponse> call = apiService.searchProducts(query);
-        call.enqueue(new retrofit2.Callback<ProductsResponse>() {
-            @Override
-            public void onResponse(Call<ProductsResponse>call, Response<ProductsResponse> response) {
-                List<Product> productList = response.body().getProductList();
-                Timber.d("productList %s", productList.size());
-                callback.onSuccess(productList);
-            }
+        Observable<ProductsResponse> observable = apiService.searchProducts(query);
+        observable.observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Subscriber<ProductsResponse>() {
+                    @Override
+                    public void onCompleted() {
+                        // handle completed
+                    }
 
-            @Override
-            public void onFailure(Call<ProductsResponse>call, Throwable t) {
-                Timber.d(t.toString());
-                callback.onFailure(t);
-            }
-        });
+                    @Override
+                    public void onError(Throwable t) {
+                        Timber.d(t.toString());
+                        callback.onFailure(t);
+                    }
+
+                    @Override
+                    public void onNext(ProductsResponse productsResponse) {
+                        List<Product> productList = productsResponse.getProductList();
+                        Timber.d("productList %s", productList.size());
+                        callback.onSuccess(productList);
+                    }
+                });
     }
 }

@@ -3,6 +3,7 @@ package com.nathaniel.searchbox.net;
 import com.nathaniel.searchbox.constant.NetConstant;
 
 import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
@@ -16,6 +17,7 @@ public class ApiClient {
         if (sRetrofit ==null) {
             sRetrofit = new Retrofit.Builder()
                     .baseUrl(NetConstant.BASE_URL)
+                    .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
         }
