@@ -1,5 +1,6 @@
 package com.nathaniel.searchbox.presenter;
 
+import com.nathaniel.searchbox.constant.AppConstant;
 import com.nathaniel.searchbox.model.data.Product;
 import com.nathaniel.searchbox.net.ApiClient;
 import com.nathaniel.searchbox.net.ApiInterface;
@@ -24,9 +25,9 @@ public class ProductPresenter {
         void onFailure(Throwable t);
     }
 
-    public void searchProduct(String query, final Callback<List<Product>> callback) {
+    public void searchProduct(String query, int start, final Callback<List<Product>> callback) {
         ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
-        Observable<ProductsResponse> observable = apiService.searchProducts(query);
+        Observable<ProductsResponse> observable = apiService.searchProducts(query, AppConstant.ROWS, start);
         observable.observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Subscriber<ProductsResponse>() {

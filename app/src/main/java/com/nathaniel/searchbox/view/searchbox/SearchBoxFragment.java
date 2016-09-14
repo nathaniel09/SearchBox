@@ -116,7 +116,7 @@ public class SearchBoxFragment extends BaseFragment implements SearchView.OnQuer
     }
 
     private void searchProduct(String query) {
-        mProductPresenter.searchProduct(query, new ProductPresenter.Callback<List<Product>>() {
+        mProductPresenter.searchProduct(query, 0, new ProductPresenter.Callback<List<Product>>() {
             @Override
             public void onSuccess(List<Product> productList) {
                 mAdapter.setProductList(productList);

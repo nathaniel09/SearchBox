@@ -14,5 +14,5 @@ import rx.Observable;
 public interface ApiInterface {
 
     @GET(NetConstant.SEARCH_PRODUCT)
-    Observable<ProductsResponse> searchProducts(@Query("q") String query);
+    Observable<ProductsResponse> searchProducts(@Query("q") String query, @Query("start") int start, @Query("rows") int rows);
 }
