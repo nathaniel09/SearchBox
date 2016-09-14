@@ -97,6 +97,7 @@ public class SearchBoxFragment extends BaseFragment implements SearchView.OnQuer
     public boolean onQueryTextSubmit(String query) {
         if (!TextUtils.isEmpty(query) && !query.equalsIgnoreCase(mQuery)) {
             mQuery = query;
+            mAdapter.clearData();
             searchProduct(query);
         }
         return true;

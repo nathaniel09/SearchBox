@@ -56,6 +56,10 @@ public class SearchBoxAdapter extends RecyclerView.Adapter<SearchBoxAdapter.View
         holder.mPriceTextView.setText(product.getPrice());
     }
 
+    public void clearData() {
+        mProductList = new ArrayList<>();
+    }
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
         @BindView(R.id.product_image_view)
