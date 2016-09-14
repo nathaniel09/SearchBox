@@ -41,6 +41,8 @@ public class SearchBoxFragment extends BaseFragment implements SearchView.OnQuer
 
     private String mQuery;
 
+    private EndlessRecyclerOnScrollListener mEndlessRecyclerOnScrollListener;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,12 +63,6 @@ public class SearchBoxFragment extends BaseFragment implements SearchView.OnQuer
 
         mAdapter = new SearchBoxAdapter(null);
         mRecyclerView.setAdapter(mAdapter);
-        mRecyclerView.addOnScrollListener(new EndlessRecyclerOnScrollListener(mLayoutManager) {
-            @Override
-            public void onLoadMore(int current_page) {
-                searchProduct(mQuery);
-            }
-        });
     }
 
     @Nullable
@@ -98,6 +94,7 @@ public class SearchBoxFragment extends BaseFragment implements SearchView.OnQuer
         if (!TextUtils.isEmpty(query) && !query.equalsIgnoreCase(mQuery)) {
             mQuery = query;
             mAdapter.clearData();
+            refreshScrollListener();
             searchProduct(query);
         }
         return true;
@@ -107,6 +104,19 @@ public class SearchBoxFragment extends BaseFragment implements SearchView.OnQuer
     public boolean onQueryTextChange(String newText) {
         Timber.d("onQueryTextChange");
         return false;
+    }
+
+    private void refreshScrollListener() {
+        if (mEndlessRecyclerOnScrollListener != null) {
+            mRecyclerView.removeOnScrollListener(mEndlessRecyclerOnScrollListener);
+        }
+        mEndlessRecyclerOnScrollListener = new EndlessRecyclerOnScrollListener(mLayoutManager) {
+            @Override
+            public void onLoadMore(int current_page) {
+                searchProduct(mQuery);
+            }
+        };
+        mRecyclerView.addOnScrollListener(mEndlessRecyclerOnScrollListener);
     }
 
     private void searchProduct(String query) {
