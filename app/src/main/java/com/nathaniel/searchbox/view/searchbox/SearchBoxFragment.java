@@ -57,6 +57,9 @@ public class SearchBoxFragment extends BaseFragment implements SearchView.OnQuer
         initialRecycleView();
     }
 
+    /**
+     * Initial recycle view
+     */
     private void initialRecycleView() {
         mLayoutManager = new GridLayoutManager(getActivity(), 2);
         mRecyclerView.setLayoutManager(mLayoutManager);
@@ -85,7 +88,6 @@ public class SearchBoxFragment extends BaseFragment implements SearchView.OnQuer
         MenuItemCompat.setShowAsAction(item, MenuItemCompat.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW | MenuItemCompat.SHOW_AS_ACTION_IF_ROOM);
         MenuItemCompat.setActionView(item, searchView);
         searchView.setOnQueryTextListener(this);
-        searchView.setIconifiedByDefault(false);
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -106,6 +108,9 @@ public class SearchBoxFragment extends BaseFragment implements SearchView.OnQuer
         return false;
     }
 
+    /**
+     * Refresh scroll listener
+     */
     private void refreshScrollListener() {
         if (mEndlessRecyclerOnScrollListener != null) {
             mRecyclerView.removeOnScrollListener(mEndlessRecyclerOnScrollListener);
@@ -119,6 +124,10 @@ public class SearchBoxFragment extends BaseFragment implements SearchView.OnQuer
         mRecyclerView.addOnScrollListener(mEndlessRecyclerOnScrollListener);
     }
 
+    /**
+     * Search product based on query
+     * @param query
+     */
     private void searchProduct(String query) {
         mProductPresenter.searchProduct(query, mAdapter.getItemCount(), new ProductPresenter.Callback<List<Product>>() {
             @Override

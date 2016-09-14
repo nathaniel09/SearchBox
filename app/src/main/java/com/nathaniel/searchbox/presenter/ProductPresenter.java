@@ -35,6 +35,12 @@ public class ProductPresenter extends BasePresenter {
         mProductModel = new ProductModel(getContext());
     }
 
+    /**
+     * Search product, if does not exist on database, get from api
+     * @param query
+     * @param start
+     * @param callback
+     */
     public void searchProduct(final String query, final int start, final Callback<List<Product>> callback) {
         Timber.d("Search product query:%s, start:%s", query, start);
         List<Product> productList = getSearchProductFromCache(query, start);
@@ -46,11 +52,23 @@ public class ProductPresenter extends BasePresenter {
         getSearchProductFromApi(query, start, callback);
     }
 
+    /**
+     * Get product from database (cache)
+     * @param query
+     * @param start
+     * @return
+     */
     private List<Product> getSearchProductFromCache(final String query, final int start) {
         List<Product> productList = mProductModel.getSearchProductList(query, start, AppConstant.ROWS);
         return productList;
     }
 
+    /**
+     * Get product from api
+     * @param query
+     * @param start
+     * @param callback
+     */
     private void getSearchProductFromApi(final String query, final int start, final Callback<List<Product>> callback) {
         ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
         Observable<ProductsResponse> observable = apiService.searchProducts(query, start, AppConstant.ROWS);

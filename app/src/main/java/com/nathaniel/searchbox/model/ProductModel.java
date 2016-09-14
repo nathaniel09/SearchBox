@@ -20,6 +20,13 @@ public class ProductModel extends BaseModel {
         super(context);
     }
 
+    /**
+     * Get product from database
+     * @param query keyword
+     * @param start start no
+     * @param row limit size
+     * @return
+     */
     public List<Product> getSearchProductList(String query, int start, int row) {
         List<Product> productList = new ArrayList<>();
         Cursor cursor = getContext().getContentResolver().query(SearchProductTable.CONTENT_URI, null,
@@ -34,6 +41,12 @@ public class ProductModel extends BaseModel {
         return productList;
     }
 
+    /**
+     * Insert search product list to database
+     * @param productList
+     * @param query
+     * @param start
+     */
     public void insertSearchProduct(List<Product> productList, String query, int start) {
         int i = 0;
         for (Product product : productList) {
@@ -43,6 +56,9 @@ public class ProductModel extends BaseModel {
         }
     }
 
+    /**
+     * Delete all search product table cache
+     */
     public void deleteAllSearchProduct() {
         getContext().getContentResolver().delete(SearchProductTable.CONTENT_URI, null, null);
     }

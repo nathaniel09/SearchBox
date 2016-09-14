@@ -11,6 +11,11 @@ import com.nathaniel.searchbox.model.data.Product;
  */
 public class ProductConverter {
 
+    /**
+     * Convert cursor to product
+     * @param cursor
+     * @return
+     */
     public static Product convert(Cursor cursor) {
         Product product = new Product();
         product.setId(cursor.getLong(cursor.getColumnIndex(SearchProductTable.ID)));
@@ -21,7 +26,13 @@ public class ProductConverter {
         return product;
     }
 
-
+    /**
+     * Convert product to content value
+     * @param product
+     * @param query
+     * @param no
+     * @return
+     */
     public static ContentValues convertSearchProduct(Product product, String query, int no) {
         ContentValues values = new ContentValues();
         values.put(SearchProductTable.ID, product.getId());

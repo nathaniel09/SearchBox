@@ -26,6 +26,10 @@ public class SearchBoxAdapter extends RecyclerView.Adapter<SearchBoxAdapter.View
     private List<Product> mProductList;
     private Context mContext;
 
+    /**
+     * Add list of product to the list
+     * @param productList
+     */
     public void addProductList(List<Product> productList) {
         if (mProductList == null) {
             mProductList = new ArrayList<>();
@@ -64,6 +68,9 @@ public class SearchBoxAdapter extends RecyclerView.Adapter<SearchBoxAdapter.View
         mProductList = new ArrayList<>();
     }
 
+    /**
+     * View holder for product item
+     */
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
         @BindView(R.id.product_image_view)
