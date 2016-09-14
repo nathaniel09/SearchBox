@@ -20,6 +20,7 @@ import com.nathaniel.searchbox.model.data.Product;
 import com.nathaniel.searchbox.presenter.ProductPresenter;
 import com.nathaniel.searchbox.view.MainActivity;
 import com.nathaniel.searchbox.view.base.BaseFragment;
+import com.nathaniel.searchbox.view.widget.EndlessRecyclerOnScrollListener;
 
 import java.util.List;
 
@@ -36,7 +37,7 @@ public class SearchBoxFragment extends BaseFragment implements SearchView.OnQuer
 
     private ProductPresenter mProductPresenter;
     private SearchBoxAdapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
+    private LinearLayoutManager mLayoutManager;
 
     private String mQuery;
 
@@ -51,11 +52,21 @@ public class SearchBoxFragment extends BaseFragment implements SearchView.OnQuer
         super.onActivityCreated(savedInstanceState);
         setHasOptionsMenu(true);
 
+        initialRecycleView();
+    }
+
+    private void initialRecycleView() {
         mLayoutManager = new GridLayoutManager(getActivity(), 2);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         mAdapter = new SearchBoxAdapter(null);
         mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.addOnScrollListener(new EndlessRecyclerOnScrollListener(mLayoutManager) {
+            @Override
+            public void onLoadMore(int current_page) {
+                searchProduct(mQuery);
+            }
+        });
     }
 
     @Nullable
@@ -79,27 +90,6 @@ public class SearchBoxFragment extends BaseFragment implements SearchView.OnQuer
         MenuItemCompat.setActionView(item, searchView);
         searchView.setOnQueryTextListener(this);
         searchView.setIconifiedByDefault(false);
-        searchView.setOnSearchClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Timber.d("onClick");
-            }
-        });
-
-        MenuItemCompat.setOnActionExpandListener(item, new MenuItemCompat.OnActionExpandListener() {
-            @Override
-            public boolean onMenuItemActionCollapse(MenuItem item) {
-                Timber.d("onMenuItemActionCollapse");
-                return true;
-            }
-
-            @Override
-            public boolean onMenuItemActionExpand(MenuItem item) {
-                Timber.d("onMenuItemActionExpand");
-                return true;
-            }
-        });
-
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -119,10 +109,10 @@ public class SearchBoxFragment extends BaseFragment implements SearchView.OnQuer
     }
 
     private void searchProduct(String query) {
-        mProductPresenter.searchProduct(query, 0, new ProductPresenter.Callback<List<Product>>() {
+        mProductPresenter.searchProduct(query, mAdapter.getItemCount(), new ProductPresenter.Callback<List<Product>>() {
             @Override
             public void onSuccess(List<Product> productList) {
-                mAdapter.setProductList(productList);
+                mAdapter.addProductList(productList);
                 mAdapter.notifyDataSetChanged();
             }
 

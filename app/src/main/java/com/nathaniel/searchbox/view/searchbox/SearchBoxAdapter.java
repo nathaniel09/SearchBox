@@ -10,6 +10,7 @@ import android.widget.TextView;
 import com.nathaniel.searchbox.R;
 import com.nathaniel.searchbox.model.data.Product;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -22,8 +23,11 @@ public class SearchBoxAdapter extends RecyclerView.Adapter<SearchBoxAdapter.View
 
     private List<Product> mProductList;
 
-    public void setProductList(List<Product> productList) {
-        mProductList = productList;
+    public void addProductList(List<Product> productList) {
+        if (mProductList == null) {
+            mProductList = new ArrayList<>();
+        }
+        mProductList.addAll(productList);
     }
 
     public SearchBoxAdapter(List<Product> productList) {

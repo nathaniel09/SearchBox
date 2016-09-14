@@ -36,9 +36,11 @@ public class ProductPresenter extends BasePresenter {
     }
 
     public void searchProduct(final String query, final int start, final Callback<List<Product>> callback) {
+        Timber.d("Search product query:%s, start:%s", query, start);
         List<Product> productList = getSearchProductFromCache(query, start);
         if (productList.size() > 0) {
             callback.onSuccess(productList);
+            Timber.d("Search product from database, size: %s", productList.size());
             return;
         }
         getSearchProductFromApi(query, start, callback);
@@ -51,7 +53,7 @@ public class ProductPresenter extends BasePresenter {
 
     private void getSearchProductFromApi(final String query, final int start, final Callback<List<Product>> callback) {
         ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
-        Observable<ProductsResponse> observable = apiService.searchProducts(query, AppConstant.ROWS, start);
+        Observable<ProductsResponse> observable = apiService.searchProducts(query, start, AppConstant.ROWS);
         observable.observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Subscriber<ProductsResponse>() {
@@ -70,7 +72,7 @@ public class ProductPresenter extends BasePresenter {
                     public void onNext(ProductsResponse productsResponse) {
                         List<Product> productList = productsResponse.getProductList();
                         insertProductToTable(productList);
-                        Timber.d("productList %s", productList.size());
+                        Timber.d("Search product from API, size: %s", productList.size());
                         callback.onSuccess(productList);
                     }
 
