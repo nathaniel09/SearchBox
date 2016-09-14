@@ -61,7 +61,7 @@ public class SearchBoxFragment extends BaseFragment implements SearchView.OnQuer
         mLayoutManager = new GridLayoutManager(getActivity(), 2);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        mAdapter = new SearchBoxAdapter(null);
+        mAdapter = new SearchBoxAdapter(getActivity());
         mRecyclerView.setAdapter(mAdapter);
     }
 
