@@ -1,6 +1,9 @@
 package com.nathaniel.searchbox.presenter;
 
+import android.content.Context;
+
 import com.nathaniel.searchbox.constant.AppConstant;
+import com.nathaniel.searchbox.model.ProductModel;
 import com.nathaniel.searchbox.model.data.Product;
 import com.nathaniel.searchbox.net.ApiClient;
 import com.nathaniel.searchbox.net.ApiInterface;
@@ -17,7 +20,7 @@ import timber.log.Timber;
 /**
  * Created by USER on 9/13/2016.
  */
-public class ProductPresenter {
+public class ProductPresenter extends BasePresenter {
 
     public interface Callback<T> {
         void onSuccess(T t);
@@ -25,7 +28,28 @@ public class ProductPresenter {
         void onFailure(Throwable t);
     }
 
-    public void searchProduct(String query, int start, final Callback<List<Product>> callback) {
+    private ProductModel mProductModel;
+
+    public ProductPresenter(Context context) {
+        super(context);
+        mProductModel = new ProductModel(getContext());
+    }
+
+    public void searchProduct(final String query, final int start, final Callback<List<Product>> callback) {
+        List<Product> productList = getSearchProductFromCache(query, start);
+        if (productList.size() > 0) {
+            callback.onSuccess(productList);
+            return;
+        }
+        getSearchProductFromApi(query, start, callback);
+    }
+
+    private List<Product> getSearchProductFromCache(final String query, final int start) {
+        List<Product> productList = mProductModel.getSearchProductList(query, start, AppConstant.ROWS);
+        return productList;
+    }
+
+    private void getSearchProductFromApi(final String query, final int start, final Callback<List<Product>> callback) {
         ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
         Observable<ProductsResponse> observable = apiService.searchProducts(query, AppConstant.ROWS, start);
         observable.observeOn(AndroidSchedulers.mainThread())
@@ -45,8 +69,17 @@ public class ProductPresenter {
                     @Override
                     public void onNext(ProductsResponse productsResponse) {
                         List<Product> productList = productsResponse.getProductList();
+                        insertProductToTable(productList);
                         Timber.d("productList %s", productList.size());
                         callback.onSuccess(productList);
+                    }
+
+                    /**
+                     * Insert search product to table (cache)
+                     * @param productList
+                     */
+                    private void insertProductToTable(List<Product> productList) {
+                        mProductModel.insertSearchProduct(productList, query, start);
                     }
                 });
     }

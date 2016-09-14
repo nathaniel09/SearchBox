@@ -41,7 +41,7 @@ public class SearchBoxFragment extends BaseFragment implements SearchView.OnQuer
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mProductPresenter = new ProductPresenter();
+        mProductPresenter = new ProductPresenter(getActivity());
     }
 
     @Override
