@@ -38,6 +38,8 @@ public class SearchBoxFragment extends BaseFragment implements SearchView.OnQuer
     private SearchBoxAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
+    private String mQuery;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,12 +74,12 @@ public class SearchBoxFragment extends BaseFragment implements SearchView.OnQuer
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_searchbox, menu);
         MenuItem item = menu.findItem(R.id.action_search);
-        SearchView sv = new SearchView(((MainActivity) getActivity()).getSupportActionBar().getThemedContext());
+        SearchView searchView = new SearchView(((MainActivity) getActivity()).getSupportActionBar().getThemedContext());
         MenuItemCompat.setShowAsAction(item, MenuItemCompat.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW | MenuItemCompat.SHOW_AS_ACTION_IF_ROOM);
-        MenuItemCompat.setActionView(item, sv);
-        sv.setOnQueryTextListener(this);
-        sv.setIconifiedByDefault(false);
-        sv.setOnSearchClickListener(new View.OnClickListener() {
+        MenuItemCompat.setActionView(item, searchView);
+        searchView.setOnQueryTextListener(this);
+        searchView.setIconifiedByDefault(false);
+        searchView.setOnSearchClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Timber.d("onClick");
@@ -103,7 +105,8 @@ public class SearchBoxFragment extends BaseFragment implements SearchView.OnQuer
 
     @Override
     public boolean onQueryTextSubmit(String query) {
-        if (!TextUtils.isEmpty(query)) {
+        if (!TextUtils.isEmpty(query) && !query.equalsIgnoreCase(mQuery)) {
+            mQuery = query;
             searchProduct(query);
         }
         return true;
