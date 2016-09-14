@@ -20,6 +20,7 @@ import com.nathaniel.searchbox.model.data.Product;
 import com.nathaniel.searchbox.presenter.ProductPresenter;
 import com.nathaniel.searchbox.view.MainActivity;
 import com.nathaniel.searchbox.view.base.BaseFragment;
+import com.nathaniel.searchbox.view.widget.EndlessRecyclerOnScrollListener;
 
 import java.util.List;
 
@@ -36,7 +37,11 @@ public class SearchBoxFragment extends BaseFragment implements SearchView.OnQuer
 
     private ProductPresenter mProductPresenter;
     private SearchBoxAdapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
+    private LinearLayoutManager mLayoutManager;
+
+    private String mQuery;
+
+    private EndlessRecyclerOnScrollListener mEndlessRecyclerOnScrollListener;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -49,10 +54,17 @@ public class SearchBoxFragment extends BaseFragment implements SearchView.OnQuer
         super.onActivityCreated(savedInstanceState);
         setHasOptionsMenu(true);
 
+        initialRecycleView();
+    }
+
+    /**
+     * Initial recycle view
+     */
+    private void initialRecycleView() {
         mLayoutManager = new GridLayoutManager(getActivity(), 2);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        mAdapter = new SearchBoxAdapter(null);
+        mAdapter = new SearchBoxAdapter(getActivity());
         mRecyclerView.setAdapter(mAdapter);
     }
 
@@ -72,38 +84,19 @@ public class SearchBoxFragment extends BaseFragment implements SearchView.OnQuer
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_searchbox, menu);
         MenuItem item = menu.findItem(R.id.action_search);
-        SearchView sv = new SearchView(((MainActivity) getActivity()).getSupportActionBar().getThemedContext());
+        SearchView searchView = new SearchView(((MainActivity) getActivity()).getSupportActionBar().getThemedContext());
         MenuItemCompat.setShowAsAction(item, MenuItemCompat.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW | MenuItemCompat.SHOW_AS_ACTION_IF_ROOM);
-        MenuItemCompat.setActionView(item, sv);
-        sv.setOnQueryTextListener(this);
-        sv.setIconifiedByDefault(false);
-        sv.setOnSearchClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Timber.d("onClick");
-            }
-        });
-
-        MenuItemCompat.setOnActionExpandListener(item, new MenuItemCompat.OnActionExpandListener() {
-            @Override
-            public boolean onMenuItemActionCollapse(MenuItem item) {
-                Timber.d("onMenuItemActionCollapse");
-                return true;
-            }
-
-            @Override
-            public boolean onMenuItemActionExpand(MenuItem item) {
-                Timber.d("onMenuItemActionExpand");
-                return true;
-            }
-        });
-
+        MenuItemCompat.setActionView(item, searchView);
+        searchView.setOnQueryTextListener(this);
         super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
     public boolean onQueryTextSubmit(String query) {
-        if (!TextUtils.isEmpty(query)) {
+        if (!TextUtils.isEmpty(query) && !query.equalsIgnoreCase(mQuery)) {
+            mQuery = query;
+            mAdapter.clearData();
+            refreshScrollListener();
             searchProduct(query);
         }
         return true;
@@ -115,11 +108,31 @@ public class SearchBoxFragment extends BaseFragment implements SearchView.OnQuer
         return false;
     }
 
+    /**
+     * Refresh scroll listener
+     */
+    private void refreshScrollListener() {
+        if (mEndlessRecyclerOnScrollListener != null) {
+            mRecyclerView.removeOnScrollListener(mEndlessRecyclerOnScrollListener);
+        }
+        mEndlessRecyclerOnScrollListener = new EndlessRecyclerOnScrollListener(mLayoutManager) {
+            @Override
+            public void onLoadMore(int current_page) {
+                searchProduct(mQuery);
+            }
+        };
+        mRecyclerView.addOnScrollListener(mEndlessRecyclerOnScrollListener);
+    }
+
+    /**
+     * Search product based on query
+     * @param query
+     */
     private void searchProduct(String query) {
-        mProductPresenter.searchProduct(query, 0, new ProductPresenter.Callback<List<Product>>() {
+        mProductPresenter.searchProduct(query, mAdapter.getItemCount(), new ProductPresenter.Callback<List<Product>>() {
             @Override
             public void onSuccess(List<Product> productList) {
-                mAdapter.setProductList(productList);
+                mAdapter.addProductList(productList);
                 mAdapter.notifyDataSetChanged();
             }
 

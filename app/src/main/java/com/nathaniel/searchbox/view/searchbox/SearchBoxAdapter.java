@@ -1,5 +1,6 @@
 package com.nathaniel.searchbox.view.searchbox;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,9 +8,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.nathaniel.searchbox.R;
 import com.nathaniel.searchbox.model.data.Product;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -21,13 +24,21 @@ import butterknife.ButterKnife;
 public class SearchBoxAdapter extends RecyclerView.Adapter<SearchBoxAdapter.ViewHolder> {
 
     private List<Product> mProductList;
+    private Context mContext;
 
-    public void setProductList(List<Product> productList) {
-        mProductList = productList;
+    /**
+     * Add list of product to the list
+     * @param productList
+     */
+    public void addProductList(List<Product> productList) {
+        if (mProductList == null) {
+            mProductList = new ArrayList<>();
+        }
+        mProductList.addAll(productList);
     }
 
-    public SearchBoxAdapter(List<Product> productList) {
-        mProductList = productList;
+    public SearchBoxAdapter(Context context) {
+        mContext = context;
     }
 
     @Override
@@ -48,10 +59,18 @@ public class SearchBoxAdapter extends RecyclerView.Adapter<SearchBoxAdapter.View
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Product product = mProductList.get(position);
+        Glide.with(mContext).load(product.getImageUri()).into(holder.mProductImageView);
         holder.mNameTextView.setText(product.getName());
         holder.mPriceTextView.setText(product.getPrice());
     }
 
+    public void clearData() {
+        mProductList = new ArrayList<>();
+    }
+
+    /**
+     * View holder for product item
+     */
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
         @BindView(R.id.product_image_view)
